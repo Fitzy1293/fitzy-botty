@@ -1,0 +1,2 @@
+# fitzy-botty
+Discord bot
