@@ -2,6 +2,6 @@
 authenticate.py
 log
 time_log
-__pychache__/*
+__pychache__/
 commit-me
 completed.txt
