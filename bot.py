@@ -5,16 +5,17 @@ import praw
 import asyncio
 import random
 import os
-import urllib.request as req
 import time
 from pprint import pprint
 import authenticate
 from traceback import format_exc
+from discord.ext import commands
 
 ####################################
 from bot_tils import *
 import makelogs
 ####################################
+
 #=========================================================================================================================================================================================================================
 #=========================================================================================================================================================================================================================
 #=========================================================================================================================================================================================================================
@@ -25,6 +26,7 @@ reddit = authenticate.redditAuthenticate() #Reddit API authentification with PRA
 programStart = time.time()
 makelogs.initLogs(('log', 'time_log', 'completed.txt'))
 
+
 def getCommands():
     commands = (
                 '-top "subreddit"',
@@ -32,8 +34,7 @@ def getCommands():
                 '-randpic "subreddit"',
                 '-commands'
                 )
-
-    return [f'\t{i}' for i in commands]
+    return commands
 
 def validCommand(received, commands): # Discord message arg parser
     if len(received) >= 1:
@@ -74,7 +75,6 @@ async def on_message(message):
     received = message.content
     commands = getCommands()
     log = []
-    #stringsToNotSend = ('success', 'failure')
 
     if str(username) != 'botty#1436' and validCommand(received, commands): # Syntacitcally correct command.
         commandLog = f'Command entered: {received}\n{username}'
@@ -84,67 +84,37 @@ async def on_message(message):
 
     #Tells discord user list of bot's commands.
     if received == '-commands':
-        await message.channel.send('A list of commands to try!')
-        await message.channel.send(f'Commands:\n' + '\n'.join(commands))
+        await message.channel.send(f'A list of commands to try!\nCommands:\n' + '\n'.join(commands))
 
     #Links the current front page post in a particular subreddit.
     elif received.startswith('-top'):
-        lines = []
         for i in topLinks(received):
             log.append(i)
-            lines.append(i)
-
-        discordReceive = '\n'.join([str('─' * 125)] + lines)
-        await message.channel.send(discordReceive)
+            if i in (('success', 'failure')):
+                await message.channel.send(str('─' * 125))
+            await message.channel.send(i)
 
     #Random copypasta.
     elif received.lower() == '-copypasta':
-        subreddit = reddit.subreddit('copypasta')
-
-        copyPastas = []
-        for submission in subreddit.hot(limit=200):
-            try:
-                copyPastas.append(submission.selftext)
-            except:
-                continue
-
-        #Loop for when the post is too long to send to the discord channel.
-        while True:
-            try:
-                discordReceive = copyPastas[random.randint(0, len(copyPastas) - 1)]
-                await message.channel.send(discordReceive)
-                break
-            except Exception as e:
-                print(format_exc())
-                continue
+        discordReceive = returnPasta()
+        await message.channel.send(discordReceive)
 
     #Sends random image from a subreddit.
     elif received.startswith('-randpic'):
-        if ' ' in  message.content:
-            picExtensions = ('.png', '.PNG', '.jpg', '.JPG',)
-            discordSubreddit = message.content.split(' ')[1]
+        picExtensions = ('.png', '.PNG', '.jpg', '.JPG',)
+        randomPicReturn = randomPic(received, picExtensions)
 
-            try:
-                subreddit = reddit.subreddit(discordSubreddit)
-                imageUrls = [i.url for i in subreddit.hot(limit=100) if i.url.endswith(picExtensions)]
+        if randomPicReturn.endswith((picExtensions)):
+            log.append(f'\t{randomPicReturn}')
+            file = discord.File(randomPicReturn)
+            await message.channel.send(file=file)
+            os.remove(randomPicReturn)
 
-                discordReceive = imageUrls[random.randint(0,len(imageUrls) - 1)]
+        else:
+            await message.channel.send(randomPicReturn)
 
-                req.urlretrieve(discordReceive, 'tempDiscord.jpg')
-                fullPath = os.path.join(os.getcwd(), 'tempDiscord.jpg')
-                file = discord.File(fullPath)
-                await message.channel.send(file=file)
-                os.remove('tempDiscord.jpg')
-
-            except Exception as e:
-                print(format_exc())
-                await message.channel.send('This sub is either banned, quarantined, or does not exist.')
 
     await update(start, log, programStart)
-
-
-
-
 
 
 print(f'Awaiting on botty...')
