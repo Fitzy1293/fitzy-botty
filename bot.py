@@ -90,7 +90,7 @@ async def on_message(message):
     elif received.startswith('-top'):
         for i in topLinks(received):
             log.append(i)
-            if i in (('success', 'failure')):
+            if 'https://' in i:
                 await message.channel.send(str('─' * 125))
             await message.channel.send(i)
 

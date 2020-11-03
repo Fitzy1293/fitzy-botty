@@ -21,6 +21,7 @@ def topLinks(received):
         numOfPosts = 1
 
     try:
+        returnCt = 0
         subreddit = reddit.subreddit(discordSubreddit)
         stickyCt = len([True for submission in subreddit.hot(limit=2) if submission.stickied]) #Sticky check
         for i , submission in enumerate(subreddit.hot(limit=numOfPosts + stickyCt)):
@@ -28,7 +29,8 @@ def topLinks(received):
                 if i >= stickyCt:
                     titleStr = f'\ttitle:\t{submission.title}'
                     linkStr = f'\tlink:\thttps://www.reddit.com{submission.permalink}'
-                    yield ('\n'.join( ('success', titleStr, linkStr) ))
+                    yield ('\n'.join( (f'({returnCt}) - sucess', titleStr, linkStr) ))
+                    returnCt += 1
 
             except Exception as e:
                 print(format_exc())
@@ -65,7 +67,6 @@ def returnPasta():
 def randomPic(received, picExtensions):
     if not ' ' in  received:
         return
-
 
     discordSubreddit = received.split()[1]
 
