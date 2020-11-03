@@ -51,8 +51,8 @@ def logCatchUp(programStart): # If requests come in before the current one is fi
                 intTimeStamp = int(round(eval(timestamp)))
                 date = datetime.fromtimestamp(intTimeStamp).strftime('%Y-%m-%d %H:%M:%S')
 
-                revisedLog.append(f'\tdate:\t{date}\n' )
-                revisedLog.append(f'\tUTC:\t{timestamp}\n' )
+                revisedLog.append(f'\ndate:\t{date}\n' )
+                revisedLog.append(f'UTC:\t{timestamp}\n' )
                 revisedLog.append(f'{utcAndRunTime[1]}\n' )
                 revisedLog.append(str('─' * 125) + '\n')
 

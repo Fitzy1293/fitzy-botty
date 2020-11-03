@@ -2,7 +2,6 @@
 
 import discord
 import praw
-import asyncio
 import random
 import os
 import urllib.request as req
@@ -48,9 +47,10 @@ def validCommand(received, commands): # Discord message arg parser
             return False
 
 
-async def update(start, log, programStart):
+def update(start, log, programStart):
     makelogs.createLogs(start, log)
     makelogs.logCatchUp(programStart)
+    return 'done'
 
 #=========================================================================================================================================================================================================================
 #=========================================================================================================================================================================================================================
@@ -74,7 +74,7 @@ async def on_message(message):
     received = message.content
     commands = getCommands()
     log = []
-    #stringsToNotSend = ('success', 'failure')
+    stringsToNotSend = ('success', 'failure')
 
     if str(username) != 'botty#1436' and validCommand(received, commands): # Syntacitcally correct command.
         commandLog = f'Command entered: {received}\n{username}'
@@ -88,14 +88,11 @@ async def on_message(message):
         await message.channel.send(f'Commands:\n' + '\n'.join(commands))
 
     #Links the current front page post in a particular subreddit.
-    elif received.startswith('-top'):
-        lines = []
+    if received.startswith('-top'):
         for i in topLinks(received):
             log.append(i)
-            lines.append(i)
-
-        discordReceive = '\n'.join([str('─' * 125)] + lines)
-        await message.channel.send(discordReceive)
+            if not i in stringsToNotSend:
+                await message.channel.send(i)
 
     #Random copypasta.
     elif received.lower() == '-copypasta':
@@ -134,16 +131,16 @@ async def on_message(message):
                 fullPath = os.path.join(os.getcwd(), 'tempDiscord.jpg')
                 file = discord.File(fullPath)
                 await message.channel.send(file=file)
+
                 os.remove('tempDiscord.jpg')
 
             except Exception as e:
                 print(format_exc())
                 await message.channel.send('This sub is either banned, quarantined, or does not exist.')
 
-    await update(start, log, programStart)
 
-
-
+    update(start, log, programStart)
+    return
 
 
 

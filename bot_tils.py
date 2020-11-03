@@ -19,17 +19,14 @@ def topLinks(received):
             subreddit = utilsreddit.subreddit(discordSubreddit)
             stickyCt = len([True for submission in subreddit.hot(limit=2) if submission.stickied]) #Sticky check
             posts = []
-            yield('success')
             for i , submission in enumerate(subreddit.hot(limit=numOfPosts + stickyCt)):
 
                 if i >= stickyCt:
                     titleStr = f'\ttitle:\t{submission.title}'
                     linkStr = f'\tlink:\thttps://www.reddit.com{submission.permalink}'
-                    yield (titleStr)
-                    yield(linkStr)
+                    yield ('\n'.join( ('success', titleStr, linkStr) ))
 
         except Exception as e:
             print(format_exc())
-            yield ('failure')
             discordError = 'This sub is either banned, quarantined, or does not exist.'
-            yield (discordError)
+            yield (f'failure\n{discordError}')
