@@ -39,7 +39,7 @@ def getCommands():
 
 def validCommand(received, commands): # Discord message arg parser
     if len(received) >= 1:
-        if received[0] == '-':
+        if received[0] == '-': # Check if it starts with command trigger
             commandTriggers = [i.split()[0] for i in commands]
             commandNoArgs = received.split()[0]
             if not commandNoArgs in commandTriggers:
@@ -50,7 +50,7 @@ def validCommand(received, commands): # Discord message arg parser
             return False
 
 
-async def update(start, log, programStart):
+async def update(start, log, programStart): # Needs to be async
     makelogs.createLogs(start, log)
     makelogs.logCatchUp(programStart)
 
@@ -97,7 +97,7 @@ async def on_message(message):
             await message.channel.send(i)
 
     #Random copypasta.
-    elif received.lower() == '-copypasta':
+    elif received == '-copypasta':
         discordReceive = returnPasta()
         await message.channel.send(discordReceive)
 
@@ -118,10 +118,8 @@ async def on_message(message):
     elif received.startswith('-pka-search'):
         grepOutput = pkaSearch(received)
         for i in grepOutput:
-
+            log.append(i)
             await message.channel.send(i)
-
-
 
     await update(start, log, programStart)
 

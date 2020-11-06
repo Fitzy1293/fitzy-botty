@@ -26,7 +26,7 @@ def pkaSearch(received):
         lines = i.split('\n\t')
         matches = []
         for j in lines:
-            if query in j:
+            if query.lower() in j.lower():
                 matches.append(j)
 
         results.append([lines[0], matches])
@@ -40,18 +40,16 @@ def pkaSearch(received):
 
     if len(send) < 2000:
         print(len(send))
+        yield(send)
 
     else:
         messagesCt = len(send) // 2000
-        if messagesCt == 0:
-            yield(send)
-        else:
-            for i in range(messagesCt):
-                endSlice = (i+1) * 2000
+        for i in range(messagesCt):
+            endSlice = (i+1) * 2000
 
-                yield(send[i * 2000 : endSlice])
+            yield(send[i * 2000 : endSlice])
 
-            yield(send[endSlice:])
+        yield(send[endSlice:])
 
 
 def topLinks(received):
