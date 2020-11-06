@@ -32,7 +32,8 @@ def getCommands():
                 '-top "subreddit"',
                 '-copypasta',
                 '-randpic "subreddit"',
-                '-commands'
+                '-commands',
+                '-pka-search "query"'
                 )
     return commands
 
@@ -62,6 +63,7 @@ async def update(start, log, programStart):
 @client.event
 async def on_ready():
     print(f'...{client.user.name} is ready!\n')
+
 
 @client.event
 async def on_resumed():
@@ -112,6 +114,13 @@ async def on_message(message):
 
         else:
             await message.channel.send(randomPicReturn)
+
+    elif received.startswith('-pka-search'):
+        grepOutput = pkaSearch(received)
+        for i in grepOutput:
+
+            await message.channel.send(i)
+
 
 
     await update(start, log, programStart)

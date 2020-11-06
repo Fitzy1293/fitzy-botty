@@ -6,8 +6,53 @@ from pprint import pprint
 import random
 import urllib.request as req
 import os
+import subprocess
+from subprocess import check_output
+
 
 reddit = redditAuthenticate() #Reddit API authentification with PRAW.
+
+def pkaSearch(received):
+    if not ' ' in  received:
+        return
+
+    query = received.split(' ')[1]
+
+    episodes = open('PKA_timelines.txt', 'r').read().split('\n\n')
+
+    loggedEp = False
+    results = []
+    for i in episodes:
+        lines = i.split('\n\t')
+        matches = []
+        for j in lines:
+            if query in j:
+                matches.append(j)
+
+        results.append([lines[0], matches])
+
+    returnAsStr = []
+    for i in results:
+        if len(i[1]) != 0:
+            returnAsStr.extend((i[0], '\t' + '\n\t'.join(i[1])))
+
+    send = '\n'.join(returnAsStr)
+
+    if len(send) < 2000:
+        print(len(send))
+
+    else:
+        messagesCt = len(send) // 2000
+        if messagesCt == 0:
+            yield(send)
+        else:
+            for i in range(messagesCt):
+                endSlice = (i+1) * 2000
+
+                yield(send[i * 2000 : endSlice])
+
+            yield(send[endSlice:])
+
 
 def topLinks(received):
     if not ' ' in  received:
